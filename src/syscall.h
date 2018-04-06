@@ -22,7 +22,6 @@ extern abi_long syscall(int n, abi_long a1, abi_long a2, abi_long a3, abi_long a
 
 #define syscall6(n, a1, a2, a3, a4, a5, a6)                             \
     ({                                                                  \
-        errno = 0;                                                      \
         (abi_long)syscall((abi_long)a1, (abi_long)a2, (abi_long)a3,     \
                           (abi_long)a4, (abi_long)a5, (abi_long)a6, n); \
     })
