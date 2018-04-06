@@ -6,20 +6,13 @@
 #include "stdlib.h"
 #include "syscalls.h"
 
-static FILE _stderr = {.fd = 2};
-static FILE _stdin = {.fd = 0};
-static FILE _stdout = {.fd = 1};
-FILE *stderr = &_stderr;
-FILE *stdin = &_stdin;
-FILE *stdout = &_stdout;
-
-static void freset(FILE *f) {
+void freset(FILE *f) {
     f->size = 0;
     f->pos = 0;
     memset(f->buf, 0, BUFSIZE);
 }
 
-static int buf_seek(FILE *f, long offset, int whence) {
+int buf_seek(FILE *f, long offset, int whence) {
     f->size = 0;
     off_t pos = _lseek(f->fd, offset, whence);
     if (pos >= 0) {
@@ -28,7 +21,7 @@ static int buf_seek(FILE *f, long offset, int whence) {
     return pos;
 }
 
-static int buf_write(FILE *f, const char *s, int len) {
+int buf_write(FILE *f, const char *s, int len) {
     if (len == 0) {
         return fflush(f) - f->size;
     }
@@ -45,7 +38,7 @@ static int buf_write(FILE *f, const char *s, int len) {
     return len;
 }
 
-static int buf_read(FILE *f, char *d, int len) {
+int buf_read(FILE *f, char *d, int len) {
     // TODO: EOF + error handling
     int ret = 0;
     int size = f->size - f->pos;
@@ -170,7 +163,8 @@ int putc(int c, FILE *f) {
 }
 
 int puts(const char *s) {
-    return buf_write(stdout, s, strlen(s));
+    static FILE _stdout = {.fd = 1};
+    return buf_write(&_stdout, s, strlen(s));
 }
 
 int printf(const char *fmt, ...) {
@@ -178,6 +172,7 @@ int printf(const char *fmt, ...) {
     const char *pos = fmt;
     char c;
     int control = false;
+    static FILE _stdout = {.fd = 1};
 
     va_list params;
     va_start(params, fmt);
@@ -191,10 +186,10 @@ int printf(const char *fmt, ...) {
             }
             switch (c) {
                 case '%':
-                    putc(c, stdout);
+                    putc(c, &_stdout);
                     break;
                 case 'c':
-                    putc(arg(int), stdout);
+                    putc(arg(int), &_stdout);
                     break;
                 case 's': {
                     char *s = arg(char *);
@@ -224,7 +219,7 @@ int printf(const char *fmt, ...) {
         } else if (c == '%') {
             control = true;
         } else {
-            putc(c, stdout);
+            putc(c, &_stdout);
         }
     }
     va_end(params);
