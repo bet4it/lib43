@@ -168,7 +168,7 @@ int puts(const char *s) {
 }
 
 int printf(const char *fmt, ...) {
-#define arg(type) va_arg(params, type)
+#define arg_printf(type) va_arg(params, type)
     const char *pos = fmt;
     char c;
     int control = false;
@@ -189,10 +189,10 @@ int printf(const char *fmt, ...) {
                     putc(c, &_stdout);
                     break;
                 case 'c':
-                    putc(arg(int), &_stdout);
+                    putc(arg_printf(int), &_stdout);
                     break;
                 case 's': {
-                    char *s = arg(char *);
+                    char *s = arg_printf(char *);
                     if (s == NULL) {
                         puts("(null)");
                     } else {
@@ -202,18 +202,18 @@ int printf(const char *fmt, ...) {
                 }
                 case 'd':
                 case 'i': {
-                    puts(itoa_signed(arg(int), 10));
+                    puts(itoa_signed(arg_printf(int), 10));
                     break;
                 }
                 case 'u':
-                    puts(itoa(arg(int), 10));
+                    puts(itoa(arg_printf(int), 10));
                     break;
                 case 'p':
                 case 'x':
-                    puts(itoa(arg(int), 16));
+                    puts(itoa(arg_printf(int), 16));
                     break;
                 case 'X':
-                    puts(strupr(itoa(arg(int), 16)));
+                    puts(strupr(itoa(arg_printf(int), 16)));
                     break;
             }
         } else if (c == '%') {
@@ -223,6 +223,6 @@ int printf(const char *fmt, ...) {
         }
     }
     va_end(params);
-#undef arg
+#undef arg_printf
     return 0;
 }

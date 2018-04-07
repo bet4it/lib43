@@ -1,8 +1,8 @@
 #include "num.h"
 
-static const char *digits = "0123456789abcdef";
 
 char *itoa(unsigned int i, int base) {
+    char digits[18] = "0123456789abcdef";
     if (base < 0 || base > 16) {
         return "(invalid base)";
     }
